@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobitex ML Trader</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: #0a0e1a;
+            color: #e0e0e0;
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #00d4aa; font-size: 1.5rem; margin-bottom: 20px; }
+        .status-bar {
+            background: #1a1f2e;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: #2a2f3e;
+        }
+        .online { color: #00d4aa; }
+        .offline { color: #ff4757; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #1a1f2e;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #2a2f3e;
+        }
+        .symbol { font-size: 1.2rem; font-weight: bold; }
+        .price { font-size: 1.5rem; font-weight: bold; margin: 8px 0; }
+        .change.positive { color: #00d4aa; }
+        .change.negative { color: #ff4757; }
+        .log-panel {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-line {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a1f2e;
+        }
+        button {
+            background: #2a2f3e;
+            border: none;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background: #3a3f4e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Nobitex ML Trader</h1>
+        
+        <div class="status-bar">
+            <div class="status-badge">
+                <span>🔌 WebSocket:</span>
+                <span id="ws-status" class="offline">🔴 خاموش</span>
+            </div>
+            <div class="status-badge">
+                <span>🕐 آخرین آپدیت:</span>
+                <span id="last-update">---</span>
+            </div>
+            <div class="status-badge">
+                <span>💾 رم:</span>
+                <span id="ram">---</span>
+            </div>
+            <button id="clear-logs-btn">🗑️ پاک‌سازی لاگ</button>
+        </div>
+
+        <div class="grid" id="symbols-grid">
+            <div class="card">در حال بارگذاری...</div>
+        </div>
+
+        <div class="card">
+            <h3>📋 لاگ سیستم</h3>
+            <div class="log-panel" id="log-panel">
+                <div class="log-line">در انتظار دریافت لاگ...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                const res = await fetch('http://localhost:5001/health');
+                const data = await res.json();
+                document.getElementById('ws-status').innerHTML = '🟢 آنلاین';
+                document.getElementById('ws-status').className = 'online';
+                document.getElementById('last-update').innerText = new Date().toLocaleTimeString('fa-IR');
+            } catch(e) {
+                document.getElementById('ws-status').innerHTML = '🔴 خاموش';
+                document.getElementById('ws-status').className = 'offline';
+            }
+        }
+
+        async function fetchSymbols() {
+            try {
+                const res = await fetch('http://localhost:5001/market/prices');
+                if(res.ok) {
+                    const data = await res.json();
+                    // آپدیت grid با داده‌های واقعی بعداً
+                }
+            } catch(e) {
+                console.log('Market API not ready yet');
+            }
+        }
+
+        async function fetchLogs() {
+            try {
+                const res = await fetch('http://localhost:5001/logs?lines=20');
+                const data = await res.json();
+                const panel = document.getElementById('log-panel');
+                if(data.logs && data.logs.length) {
+                    panel.innerHTML = data.logs.map(l => `<div class="log-line">${escapeHtml(l)}</div>`).join('');
+                }
+            } catch(e) {}
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('clear-logs-btn')?.addEventListener('click', async () => {
+            await fetch('http://localhost:5001/logs/clear', { method: 'DELETE' });
+            fetchLogs();
+        });
+
+        fetchStatus();
+        fetchLogs();
+        setInterval(fetchStatus, 30000);
+        setInterval(fetchLogs, 10000);
+    </script>
+</body>
+</html>
