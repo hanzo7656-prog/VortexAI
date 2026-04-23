@@ -12,3 +12,18 @@ source venv/bin/activate  # یا venv\Scripts\activate در ویندوز
 pip install -r requirements.txt
 cp .env.example .env
 # توکن خود را در .env وارد کنید
+
+
+---
+
+### ۶. `.env.example`
+
+```env
+# Nobitex credentials
+NOBITEX_USERNAME=your_email@example.com
+NOBITEX_PASSWORD=your_password
+NOBITEX_TOKEN=your_token_from_profile
+
+# Optional
+LOG_LEVEL=INFO
+MAX_SYMBOLS=20
