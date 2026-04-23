@@ -10,13 +10,13 @@ NOBITEX_TOKEN = os.getenv("NOBITEX_TOKEN")
 NOBITEX_USERNAME = os.getenv("NOBITEX_USERNAME")
 NOBITEX_PASSWORD = os.getenv("NOBITEX_PASSWORD")
 
-# User-Agent (طبق مستندات نوبیتکس)
-USER_AGENT = "TraderBot/MLTraderV1"
+# User-Agent
+USER_AGENT = os.getenv("USER_AGENT", "TraderBot/MLTraderV1")
 
 # Database
 DB_PATH = "db/nobitex.db"
 
-# Symbols (20 نماد اول)
+# 20 نماد اولیه
 SYMBOLS = [
     "BTCIRT", "ETHIRT", "USDTIRT", "DOGEIRT", "XRPIRT",
     "BNBIRT", "TRXIRT", "ADAIRT", "MATICIRT", "SOLIRT",
@@ -25,8 +25,15 @@ SYMBOLS = [
 ]
 
 # Timeframes (دقیقه)
-BASE_TF = 5  # دقیقه
-TARGET_TFS = [15, 60, 240, 1440]  # 15min, 1h, 4h, 1D
+BASE_TF = 5
+TARGET_TFS = [15, 60, 240, 1440]
 
 # Data retention
-MAX_DAYS = 180  # 6 ماه
+MAX_DAYS = 180
+
+# Headers
+HEADERS = {
+    "Authorization": f"Token {NOBITEX_TOKEN}",
+    "User-Agent": USER_AGENT,
+    "Content-Type": "application/json"
+}
