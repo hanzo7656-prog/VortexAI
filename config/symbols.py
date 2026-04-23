@@ -1,26 +1,13 @@
-# 20 نماد با حجم معاملاتی بالا (بر اساس مستندات نوبیتکس)
+# 20 نماد با حجم بالا
 HIGH_VOLUME_SYMBOLS = [
-    "BTCIRT",   # بیت‌کوین ریال
-    "ETHIRT",   # اتریوم ریال
-    "USDTIRT",  # تتر ریال
-    "DOGEIRT",  # دوج ریال
-    "XRPIRT",   # ریپل ریال
-    "BNBIRT",   # بایننس ریال
-    "TRXIRT",   # ترون ریال
-    "ADAIRT",   # کاردانو ریال
-    "MATICIRT", # پالیگان ریال
-    "SOLIRT",   # سولانا ریال
-    "LTCIRT",   # لایت‌کوین ریال
-    "DOTIRT",   # پولکادات ریال
-    "AVAXIRT",  # آوالانچ ریال
-    "SHIBIRT",  # شیبا ریال
-    "LINKIRT",  # چین لینک ریال
-    "ATOMIRT",  # کازماس ریال
-    "UNIIRT",   # یونی سوآپ ریال
-    "FTMIRT",   # فانتوم ریال
-    "NEARIRT",  # نیر پروتکل ریال
-    "APTIRT",   # آپتوس ریال
+    "BTCIRT", "ETHIRT", "USDTIRT", "DOGEIRT", "XRPIRT",
+    "BNBIRT", "TRXIRT", "ADAIRT", "MATICIRT", "SOLIRT",
+    "LTCIRT", "DOTIRT", "AVAXIRT", "SHIBIRT", "LINKIRT",
+    "ATOMIRT", "UNIIRT", "FTMIRT", "NEARIRT", "APTIRT"
 ]
 
-# برای توسعه، با 5 نماد شروع کنید
+# برای تست اولیه با 5 تا شروع کن
 DEV_SYMBOLS = ["BTCIRT", "ETHIRT", "USDTIRT", "DOGEIRT", "XRPIRT"]
+
+# شبکه‌های پشتیبانی شده (از مستندات نوبیتکس)
+NETWORKS = ["BTC", "ETH", "BSC", "TRX", "LTC", "DOGE", "XRP", "ADA"]
