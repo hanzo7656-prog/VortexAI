@@ -15,6 +15,9 @@
         }
         .container { max-width: 1400px; margin: 0 auto; }
         h1 { color: #00d4aa; font-size: 1.5rem; margin-bottom: 20px; }
+        h2 { font-size: 1.2rem; margin: 0 0 10px 0; }
+        h3 { font-size: 1rem; margin: 0 0 10px 0; }
+        
         .status-bar {
             background: #1a1f2e;
             padding: 15px;
@@ -23,6 +26,7 @@
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
+            align-items: center;
         }
         .status-badge {
             display: inline-flex;
@@ -34,9 +38,16 @@
         }
         .online { color: #00d4aa; }
         .offline { color: #ff4757; }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
@@ -45,24 +56,40 @@
             border-radius: 12px;
             padding: 15px;
             border: 1px solid #2a2f3e;
+            cursor: pointer;
+            transition: all 0.2s;
         }
-        .symbol { font-size: 1.2rem; font-weight: bold; }
-        .price { font-size: 1.5rem; font-weight: bold; margin: 8px 0; }
+        .card:hover {
+            border-color: #00d4aa;
+            transform: translateY(-2px);
+        }
+        .symbol { font-size: 1rem; font-weight: bold; color: #00d4aa; }
+        .price { font-size: 1.3rem; font-weight: bold; margin: 8px 0; }
+        .change { font-size: 0.9rem; }
         .change.positive { color: #00d4aa; }
         .change.negative { color: #ff4757; }
+        .small { font-size: 0.7rem; color: #888; margin-top: 5px; }
+        
+        .prediction-card {
+            background: linear-gradient(135deg, #1a2a3a, #0f1a2a);
+            border: 2px solid #00d4aa;
+        }
+        
         .log-panel {
             background: #0d1117;
             border-radius: 12px;
             padding: 15px;
             font-family: monospace;
-            font-size: 0.8rem;
-            max-height: 200px;
+            font-size: 0.75rem;
+            max-height: 250px;
             overflow-y: auto;
         }
         .log-line {
             padding: 4px 0;
             border-bottom: 1px solid #1a1f2e;
+            font-family: monospace;
         }
+        
         button {
             background: #2a2f3e;
             border: none;
@@ -72,6 +99,21 @@
             cursor: pointer;
         }
         button:hover { background: #3a3f4e; }
+        
+        .timeframe-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+        .tf-btn {
+            background: #2a2f3e;
+            padding: 4px 10px;
+            font-size: 0.75rem;
+        }
+        .tf-btn.active {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
     </style>
 </head>
 <body>
@@ -92,8 +134,27 @@
                 <span id="ram">---</span>
             </div>
             <button id="clear-logs-btn">🗑️ پاک‌سازی لاگ</button>
+            <button onclick="refreshAll()">🔄 بروزرسانی</button>
         </div>
 
+        <div class="grid-2">
+            <div class="card prediction-card" id="prediction-card">
+                <h3>🔮 پیش‌بینی</h3>
+                <div>انتخاب نماد...</div>
+            </div>
+            <div class="card">
+                <h3>📈 تایم‌فریم</h3>
+                <div class="timeframe-buttons" id="timeframe-buttons">
+                    <button class="tf-btn" data-tf="15min">15 دقیقه</button>
+                    <button class="tf-btn active" data-tf="1h">1 ساعت</button>
+                    <button class="tf-btn" data-tf="4h">4 ساعت</button>
+                    <button class="tf-btn" data-tf="1D">روزانه</button>
+                </div>
+                <div class="small mt-2">کلیک روی هر نماد برای مشاهده پیش‌بینی</div>
+            </div>
+        </div>
+
+        <h2>💰 بازارها</h2>
         <div class="grid" id="symbols-grid">
             <div class="card">در حال بارگذاری...</div>
         </div>
@@ -106,58 +167,6 @@
         </div>
     </div>
 
-    <script>
-        async function fetchStatus() {
-            try {
-                const res = await fetch('http://localhost:5001/health');
-                const data = await res.json();
-                document.getElementById('ws-status').innerHTML = '🟢 آنلاین';
-                document.getElementById('ws-status').className = 'online';
-                document.getElementById('last-update').innerText = new Date().toLocaleTimeString('fa-IR');
-            } catch(e) {
-                document.getElementById('ws-status').innerHTML = '🔴 خاموش';
-                document.getElementById('ws-status').className = 'offline';
-            }
-        }
-
-        async function fetchSymbols() {
-            try {
-                const res = await fetch('http://localhost:5001/market/prices');
-                if(res.ok) {
-                    const data = await res.json();
-                    // آپدیت grid با داده‌های واقعی بعداً
-                }
-            } catch(e) {
-                console.log('Market API not ready yet');
-            }
-        }
-
-        async function fetchLogs() {
-            try {
-                const res = await fetch('http://localhost:5001/logs?lines=20');
-                const data = await res.json();
-                const panel = document.getElementById('log-panel');
-                if(data.logs && data.logs.length) {
-                    panel.innerHTML = data.logs.map(l => `<div class="log-line">${escapeHtml(l)}</div>`).join('');
-                }
-            } catch(e) {}
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        document.getElementById('clear-logs-btn')?.addEventListener('click', async () => {
-            await fetch('http://localhost:5001/logs/clear', { method: 'DELETE' });
-            fetchLogs();
-        });
-
-        fetchStatus();
-        fetchLogs();
-        setInterval(fetchStatus, 30000);
-        setInterval(fetchLogs, 10000);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
